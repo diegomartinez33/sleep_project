@@ -89,7 +89,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 # --------------------------------------------------------------------------------------------------------------
 # Functions
 # --------------------------------------------------------------------------------------------------------------
-someList = ['dataBaseDict_SC_raw_10_0.pkl', 'dataBaseDict_SC_raw_30_0.pkl']
+someList = ['dataBaseDict_SC_raw_10_0.pkl']
 
 def trainDOEexp(balancedPath=data_base_path,Ei=1):
     """Function to train all combinations for """

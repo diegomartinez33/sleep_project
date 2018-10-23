@@ -17,9 +17,9 @@ from torch.autograd import Variable
 import numpy as np
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '2'
 
-# torch.backends.cudnn.enabled = False
+torch.backends.cudnn.enabled = False
 
 # --------------------------------------------------------------------------------------------------------------
 # Paths and modules
@@ -27,8 +27,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 TesisPath = '/hpcfs/home/da.martinez33/Tesis'
 
-ACCpath = osp.join(TesisPath, 'results/trainResults')
-modelsPath = osp.join(TesisPath, 'results/trainModels')
+ACCpath = osp.join(TesisPath, 'results/trainResults', 'Adam')
+modelsPath = osp.join(TesisPath, 'results/trainModels', 'Adam')
 
 data_base_path = osp.join(TesisPath, 'Data', 'DOE_databases', 'balancedData')
 data_base_file = 'dataBaseDict_SC_amp_10_0.pkl'
@@ -95,7 +95,7 @@ def trainDOEexp(balancedPath=data_base_path,Ei=1):
     """Function to train all combinations for """
     print('Start training\n')
     for file in os.listdir(balancedPath):
-        if file.endswith(".pkl"):
+        if file.endswith(".pkl") and file == data_base_file:
             print(file)
             saveComb = file[:-4]  # Folder to save results and models
             for i in range(1,4):
@@ -181,7 +181,8 @@ def defineModel(Net=Net_30s):
             model.load_state_dict(state)
             load_model = True
 
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+    #optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)    
     criterion = nn.CrossEntropyLoss()  # nn.BCELoss().cuda() #nn.SoftMarginLoss()
 
 

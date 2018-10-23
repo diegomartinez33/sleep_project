@@ -17,15 +17,17 @@ import createData
 
 homeDic = '/hpcfs/home/da.martinez33'
 saveDataPath = os.path.join(homeDic,'Tesis','Data','DOE_databases')
+saveDataPath_PP = os.path.join(homeDic,'Tesis','Data','Per_Patient')
 
 numFactors = 4
 #combFactors = ff2n(numFactors)
 
 Factors = {}
 FactorsKeys = ['Data Type','Image type','Window size','Times STD outliers']
-Factors['Data Type'] = ['SC', 'ST']
+# Factors['Data Type'] = ['SC', 'ST']
+Factors['Data Type'] = ['ST']
 # Factors['Image type'] = ['Amplitude','Raw']
-Factors['Image type'] = ['Raw']
+Factors['Image type'] = ['Amplitude']
 Factors['Window size'] = [10,30]
 Factors['Times STD outliers'] = [0,3]
 # The second dimension is used to assign a coded level to every factor
@@ -55,12 +57,12 @@ def runData(histsDes='No',savePath=saveDataPath,
                         deleteOuts = 'Yes'
                     else:
                         deleteOuts = 'No'
-                    createData.makeData(datasetNum=datanum,
+                    createData.makeData_PP(datasetNum=datanum,
                                         windowSize=winSize,
                                         rawImages=rawimages,
                                         delOuts=deleteOuts,
                                         timesOut=timesSTD,
-                                        savePath=saveDataPath,
+                                        savePath=saveDataPath_PP,
                                         jobPathPrint=jobPath,
                                         hists=histsDes)
                     run += 1

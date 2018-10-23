@@ -10,28 +10,28 @@ class Net_raw(nn.Module):
         super(Net_raw, self).__init__()
 
         # first convolutional block
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=(15, 15), padding=(7, 7))
-        self.bn1 = nn.BatchNorm2d(128)
+        self.conv1 = nn.Conv2d(1, 96, kernel_size=(15, 15), padding=(7, 7))
+        self.bn1 = nn.BatchNorm2d(96)
         self.relu1 = nn.ReLU()
         # first pooling
         self.pool1 = nn.MaxPool2d(kernel_size=(4, 4), padding=0)
 
         # second convolutional block
-        self.conv2 = nn.Conv2d(128, 128, kernel_size=(15, 15), padding=(7, 7))
-        self.bn2 = nn.BatchNorm2d(128)
+        self.conv2 = nn.Conv2d(96, 96, kernel_size=(15, 15), padding=(7, 7))
+        self.bn2 = nn.BatchNorm2d(96)
         self.relu2 = nn.ReLU()
         # second pooling
         self.pool2 = nn.MaxPool2d(kernel_size=(4, 4), padding=0)
 
         # third convolutional block
-        self.conv3 = nn.Conv2d(128, 128, kernel_size=(15, 15), padding=(7, 7))
-        self.bn3 = nn.BatchNorm2d(128)
+        self.conv3 = nn.Conv2d(96, 96, kernel_size=(15, 15), padding=(7, 7))
+        self.bn3 = nn.BatchNorm2d(96)
         self.relu3 = nn.ReLU()
         # third pooling
         self.pool3 = nn.MaxPool2d(kernel_size=(4, 4), padding=0)
 
         # fully convolutional networks
-        self.fc1 = nn.Conv2d(128, 100, kernel_size=(7, 10), padding=0)
+        self.fc1 = nn.Conv2d(96, 100, kernel_size=(7, 10), padding=0)
 
         self.fc2 = nn.Conv2d(100, 7, kernel_size=(1, 1), padding=0)
         # self.relu5 = nn.ReLU()

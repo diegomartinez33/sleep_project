@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import sys
     
 tesisPath = '/hpcfs/home/da.martinez33/Tesis'
-results_path = os.path.join(tesisPath, 'results','trainResults_out_artif')
+results_path = os.path.join(tesisPath, 'results', 'lr_exps','trainResults', '10')
 
 def makeplot(combPath):
     base_path = os.path.join(results_path, combPath)

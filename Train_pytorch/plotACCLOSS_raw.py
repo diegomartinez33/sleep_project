@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import sys
     
 tesisPath = '/hpcfs/home/da.martinez33/Tesis'
-results_path = os.path.join(tesisPath, 'results', 'trainResults_raw')
+results_path = os.path.join(tesisPath, 'results', 'kernel_exps', 'trainResults_raw', '480x9', 'transposed')
 
 def makeplot(combPath):
     base_path = os.path.join(results_path, combPath)
@@ -185,7 +185,7 @@ def makeplot(combPath):
     plt.close(fig3)
     plt.close(fig4)
     
-    print('plotting of' + combPath + 'Finished')
+    print('plotting of ' + combPath + ' Finished')
     
 # Create all plots of experiments combinations
 # testFolder = 'dataBaseDict_ST_amp_30_3'
@@ -196,7 +196,7 @@ def makeplot(combPath):
 if os.path.isdir(results_path):
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
-        if os.path.isdir(folder_path):
+        if os.path.isdir(folder_path) and folder[:4] == 'data':
             makeplot(folder)
 
 

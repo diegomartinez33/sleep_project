@@ -8,6 +8,7 @@ import numpy as np
 import math
 import pdb
 import time
+import sys
 
 ## Create Data for Experiments module
 
@@ -144,6 +145,8 @@ def winSamp(dataDict,winTime,sampSize, dataType='SC'):
     Size of sampling (sampSize) in seconds (1s, 0,5s, etc...)
     
     """
+
+    #labels_2_augment = [1,3,4,6]
     
     #Info from 'data' key of dictionary dataDict
     Fs_1 = 100
@@ -152,34 +155,59 @@ def winSamp(dataDict,winTime,sampSize, dataType='SC'):
     #Info from 'data2' key of dictionary dataDict
     if dataType == 'ST':
         Fs_2 = 10
+        labels_2_augment = [0,1,3,4,6]
     else:
         Fs_2 = 1
+        labels_2_augment = [1,3,4,6]
     data2 = dataDict['data2']
     
-    targets = dataDict['targets']
+    targets = dataDict['Targets']
     
     if winTime == 30:
         return dataDict
     else:
-        def cutWindows(Data,Fs):
+        def cutWindows(Data,Target,Fs):
             """ Function that make the cuts of sampling for all windows """
             movTime = sampSize * Fs
             winSize = winTime * Fs
             channels = Data.shape[0]
             finalData = np.empty((channels,1,winSize))
             finalTargets = np.empty((1))
+
+            samp_count = 0
             for i in range(Data.shape[1]):
                 origWin = Data[:,i,:]
-                aux1 = 0
-                aux2 = winSize
-                while aux2 <= origWin.shape[1]:
-                    sampWin = origWin[:,aux1:aux2]
-                    sampWin = np.expand_dims(sampWin,axis=1)
-                    finalData = np.append(finalData,sampWin,axis=1)
-                    finalTargets = np.append(finalTargets,targets[i])
-                    aux1 += movTime
-                    aux2 += movTime
-                print(i)
+                tar = Target[i]
+                if tar in labels_2_augment:
+                    aux1 = 0
+                    aux2 = winSize
+                    while aux2 <= origWin.shape[1]:
+                        sampWin = origWin[:,aux1:aux2]
+                        sampWin = np.expand_dims(sampWin,axis=1)
+                        if samp_count == 0:
+                            finalData = sampWin
+                            finalTargets = np.array(Target[i])
+                        else:
+                            finalData = np.append(finalData,sampWin,axis=1)
+                            finalTargets = np.append(finalTargets,Target[i])
+                        aux1 += movTime
+                        aux2 += movTime
+                        samp_count += 1
+                else:
+                    timesWin_in_dataWin = int(Data.shape[2]/winSize)
+                    reshape_data = np.reshape(origWin,(channels,
+                        timesWin_in_dataWin,winSize))
+                    if samp_count == 0:
+                        finalData = reshape_data
+                        finalTargets = np.array(Target[i])
+                        for j in range(timesWin_in_dataWin-1):
+                            finalTargets = np.append(finalTargets,Target[i])
+                    else:
+                        finalData = np.append(finalData,reshape_data,axis=1)
+                        for j in range(timesWin_in_dataWin):
+                            finalTargets = np.append(finalTargets,Target[i])
+                    samp_count += 1
+                #print(i)
             
             dataSampled = {}
             dataSampled['data'] = finalData
@@ -187,10 +215,10 @@ def winSamp(dataDict,winTime,sampSize, dataType='SC'):
             return dataSampled
         
         # For data 1
-        sampData1 = cutWindows(data1,Fs_1)
+        sampData1 = cutWindows(data1,targets,Fs_1)
             
         #For data 2
-        sampData2 = cutWindows(data2,Fs_2)
+        sampData2 = cutWindows(data2,targets,Fs_2)
         
         #Checks if targets array are the same length for data 1 and data 2
         if sampData1['targets'].all() == sampData2['targets'].all():
@@ -201,6 +229,10 @@ def winSamp(dataDict,winTime,sampSize, dataType='SC'):
     print(sampData1['data'].shape)
     print(sampData2['data'].shape)
     print(sampData1['targets'].shape)
+
+    ###########################################################################
+    #sys.exit()
+    ###########################################################################
     
     #Dictionary to save all cuted and oversampled data
     # Keys = ['data', 'data2', 'targets']

@@ -32,9 +32,10 @@ homeDic = '/hpcfs/home/da.martinez33'
 # Vectores con numero de carpetas de cada paciente
 # SC
 v_numSC = list(range(0,20))
-v_numST = list(range(1,24))
-del v_numST[22]
-del v_numST[2]
+#v_numST = list(range(1,25))
+v_numST = [24]
+#del v_numST[22]
+#del v_numST[2]
 
 # Directorios de bases de datos SC y ST
 databaseDir_PSG_SC = os.path.join(homeDic,'Tesis','Data','Organized','SC')
@@ -64,22 +65,22 @@ def getLabels(matfile_path):
 
 # SC data
 
-for i in v_numSC:
-    folderDir = os.path.join(databaseDir_PSG_SC,str(i))
-    for file in os.listdir(folderDir):
-        if file.endswith("annot.mat"):
-            Targets = getLabels(os.path.join(folderDir,file))
+#for i in v_numSC:
+#    folderDir = os.path.join(databaseDir_PSG_SC,str(i))
+#    for file in os.listdir(folderDir):
+#        if file.endswith("annot.mat"):
+#            Targets = getLabels(os.path.join(folderDir,file))
+#            
+#            npz_file = file[0:12] + '.npz'
+#            #Get info from already edf readed files (saved in .npz)
+#            datafile = np.load(os.path.join(folderDir,npz_file))
+#            sigData = datafile["sigData"];
+#            labels = datafile["labels"];
             
-            npz_file = file[0:12] + '.npz'
-            #Get info from already edf readed files (saved in .npz)
-            datafile = np.load(os.path.join(folderDir,npz_file))
-            sigData = datafile["sigData"];
-            labels = datafile["labels"];
-            
-            #save Targets in same file
-            np.savez(os.path.join(folderDir,npz_file),labels=labels,
-                     sigData=sigData,Targets=Targets)
-            print(file)
+#            #save Targets in same file
+#            np.savez(os.path.join(folderDir,npz_file),labels=labels,
+#                     sigData=sigData,Targets=Targets)
+#            print(file)
         
 for i in v_numST:
     folderDir = os.path.join(databaseDir_PSG_ST,str(i))

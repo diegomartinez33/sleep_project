@@ -10,7 +10,7 @@ class Net_30s(nn.Module):
     def __init__(self):
         super(Net_30s, self).__init__()
         # first convolutional block
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=(3, 3), padding=(1, 0))
+        self.conv1 = nn.Conv2d(1, 128, kernel_size=(9, 3), padding=(4, 0))
         # asymmetric kernel:  self.conv1 = nn.Conv2d(1, 128, kernel_size=(23,3), padding=11)
         self.bn1 = nn.BatchNorm2d(128)
         self.relu1 = nn.ReLU()
@@ -18,14 +18,14 @@ class Net_30s(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # second convolutional block
-        self.conv2 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv2 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn2 = nn.BatchNorm2d(128)
         self.relu2 = nn.ReLU()
         # second pooling
         self.pool2 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # third convolutional block
-        self.conv3 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv3 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU()
         # third pooling
@@ -46,16 +46,11 @@ class Net_30s(nn.Module):
     def forward(self, x):
         # first conv block
         out = self.relu1(self.bn1(self.conv1(x)))
-        # print(out.data)
-        # print(out.size())
-        # time.sleep(10)
         ############### reshape #################
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x3000x128
         out = self.pool1(out)  # 16x1x750x128
-        # print(out.data)
-        # time.sleep(10)
 
         # second block
         out = self.relu2(self.bn2(self.conv2(out)))
@@ -64,51 +59,32 @@ class Net_30s(nn.Module):
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x750x128
         out = self.pool2(out)  # 16x1x187x128
-        # print(out.data)
-        # time.sleep(10)
 
         # third conv block
-        # print(out.data)
         out = self.relu3(self.bn3(self.conv3(out)))
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x187x128
         out = self.pool3(out)  # 16x1x46x128
-        # print(out.data)
-        # time.sleep(10)
 
         # fully convolutional layers
         out = self.fc1(out)  # 16x100x1x1 o 16x100xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1xtx100
-        # print(out.data)
-        # time.sleep(10)
 
         out = self.fc2(out)  # 16x7xtx1
         out = torch.squeeze(out, 3)
-        out = torch.transpose(out, 1, 2)  # 16xtxn
-        # print(out.data)
-        # time.sleep(10)
+        out = torch.transpose(out, 1, 2)  # 16xtx7
         # out = torch.unsqueeze(out, 1) #16x1xtxn
         # out = torch.squeeze(out, 1) #16xn
         # change softmax input
-        out = out.transpose(0, 2)  # nxtxb
-        # print(out.data)
-        # time.sleep(10)
+        out = out.transpose(0, 2)  # nxtxb o 7xtx16
         n, t, b = out.size()
         out = out.contiguous()
         out = out.view(-1, t * b)  # nx16*t
-        # print(out.data)
-        # time.sleep(10)
         out = out.t()
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         out = self.softmax(out)
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         return out
 
 
@@ -116,7 +92,7 @@ class Net_10s(nn.Module):
     def __init__(self):
         super(Net_10s, self).__init__()
         # first convolutional block
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=(3, 3), padding=(1, 0))
+        self.conv1 = nn.Conv2d(1, 128, kernel_size=(9, 3), padding=(4, 0))
         # asymmetric kernel:  self.conv1 = nn.Conv2d(1, 128, kernel_size=(23,3), padding=11)
         self.bn1 = nn.BatchNorm2d(128)
         self.relu1 = nn.ReLU()
@@ -124,14 +100,14 @@ class Net_10s(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # second convolutional block
-        self.conv2 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv2 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn2 = nn.BatchNorm2d(128)
         self.relu2 = nn.ReLU()
         # second pooling
         self.pool2 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # third convolutional block
-        self.conv3 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv3 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU()
         # third pooling
@@ -150,19 +126,13 @@ class Net_10s(nn.Module):
         # self.relu13 = nn.ReLU()
 
     def forward(self, x):
-        # print(x)
         # first conv block
         out = self.relu1(self.bn1(self.conv1(x)))
-        # print(out.data)
-        # print(out.size())
-        # time.sleep(10)
         ############### reshape #################
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x3000x128
         out = self.pool1(out)  # 16x1x750x128
-        # print(out.data)
-        # time.sleep(10)
 
         # second block
         out = self.relu2(self.bn2(self.conv2(out)))
@@ -171,51 +141,32 @@ class Net_10s(nn.Module):
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x750x128
         out = self.pool2(out)  # 16x1x187x128
-        # print(out.data)
-        # time.sleep(10)
 
         # third conv block
-        # print(out.data)
         out = self.relu3(self.bn3(self.conv3(out)))
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x187x128
         out = self.pool3(out)  # 16x1x46x128
-        # print(out.data)
-        # time.sleep(10)
 
         # fully convolutional layers
         out = self.fc1(out)  # 16x100x1x1 o 16x100xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1xtx100
-        # print(out.data)
-        # time.sleep(10)
 
         out = self.fc2(out)  # 16x7xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)  # 16xtxn
-        # print(out.data)
-        # time.sleep(10)
         # out = torch.unsqueeze(out, 1) #16x1xtxn
         # out = torch.squeeze(out, 1) #16xn
         # change softmax input
         out = out.transpose(0, 2)  # nxtxb
-        # print(out.data)
-        # time.sleep(10)
         n, t, b = out.size()
         out = out.contiguous()
         out = out.view(-1, t * b)  # nx16*t
-        # print(out.data)
-        # time.sleep(10)
         out = out.t()
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         out = self.softmax(out)
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         return out
 
 
@@ -223,7 +174,7 @@ class Net_30s_ST(nn.Module):
     def __init__(self):
         super(Net_30s_ST, self).__init__()
         # first convolutional block
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=(3, 4), padding=(1, 0))
+        self.conv1 = nn.Conv2d(1, 128, kernel_size=(9, 4), padding=(4, 0))
         # asymmetric kernel:  self.conv1 = nn.Conv2d(1, 128, kernel_size=(23,3), padding=11)
         self.bn1 = nn.BatchNorm2d(128)
         self.relu1 = nn.ReLU()
@@ -231,14 +182,14 @@ class Net_30s_ST(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # second convolutional block
-        self.conv2 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv2 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn2 = nn.BatchNorm2d(128)
         self.relu2 = nn.ReLU()
         # second pooling
         self.pool2 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # third convolutional block
-        self.conv3 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv3 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU()
         # third pooling
@@ -257,21 +208,13 @@ class Net_30s_ST(nn.Module):
         # self.relu13 = nn.ReLU()
 
     def forward(self, x):
-        print(x.size())
         # first conv block
         out = self.relu1(self.bn1(self.conv1(x)))
-        # print(out.data)
-        # print(out.size())
-        # time.sleep(5)
         ############### reshape #################
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x3000x128
-        # print(out.size())
-        # time.sleep(5)
         out = self.pool1(out)  # 16x1x750x128
-        # print(out.data)
-        # time.sleep(10)
 
         # second block
         out = self.relu2(self.bn2(self.conv2(out)))
@@ -280,51 +223,32 @@ class Net_30s_ST(nn.Module):
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x750x128
         out = self.pool2(out)  # 16x1x187x128
-        # print(out.data)
-        # time.sleep(10)
 
         # third conv block
-        # print(out.data)
         out = self.relu3(self.bn3(self.conv3(out)))
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x187x128
         out = self.pool3(out)  # 16x1x46x128
-        # print(out.data)
-        # time.sleep(10)
 
         # fully convolutional layers
         out = self.fc1(out)  # 16x100x1x1 o 16x100xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1xtx100
-        # print(out.data)
-        # time.sleep(10)
 
         out = self.fc2(out)  # 16x7xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)  # 16xtxn
-        # print(out.data)
-        # time.sleep(10)
         # out = torch.unsqueeze(out, 1) #16x1xtxn
         # out = torch.squeeze(out, 1) #16xn
         # change softmax input
         out = out.transpose(0, 2)  # nxtxb
-        # print(out.data)
-        # time.sleep(10)
         n, t, b = out.size()
         out = out.contiguous()
         out = out.view(-1, t * b)  # nx16*t
-        # print(out.data)
-        # time.sleep(10)
         out = out.t()
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         out = self.softmax(out)
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         return out
 
 
@@ -332,7 +256,7 @@ class Net_10s_ST(nn.Module):
     def __init__(self):
         super(Net_10s_ST, self).__init__()
         # first convolutional block
-        self.conv1 = nn.Conv2d(1, 128, kernel_size=(3, 4), padding=(1, 0))
+        self.conv1 = nn.Conv2d(1, 128, kernel_size=(9, 4), padding=(4, 0))
         # asymmetric kernel:  self.conv1 = nn.Conv2d(1, 128, kernel_size=(23,3), padding=11)
         self.bn1 = nn.BatchNorm2d(128)
         self.relu1 = nn.ReLU()
@@ -340,14 +264,14 @@ class Net_10s_ST(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # second convolutional block
-        self.conv2 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv2 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn2 = nn.BatchNorm2d(128)
         self.relu2 = nn.ReLU()
         # second pooling
         self.pool2 = nn.MaxPool2d(kernel_size=(4, 1), padding=0)
 
         # third convolutional block
-        self.conv3 = nn.Conv2d(1, 128, kernel_size=(3, 128), padding=(1, 0))
+        self.conv3 = nn.Conv2d(1, 128, kernel_size=(9, 128), padding=(4, 0))
         self.bn3 = nn.BatchNorm2d(128)
         self.relu3 = nn.ReLU()
         # third pooling
@@ -366,19 +290,13 @@ class Net_10s_ST(nn.Module):
         # self.relu13 = nn.ReLU()
 
     def forward(self, x):
-        # print(x)
         # first conv block
         out = self.relu1(self.bn1(self.conv1(x)))
-        # print(out.data)
-        # print(out.size())
-        # time.sleep(10)
         ############### reshape #################
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x3000x128
         out = self.pool1(out)  # 16x1x750x128
-        # print(out.data)
-        # time.sleep(10)
 
         # second block
         out = self.relu2(self.bn2(self.conv2(out)))
@@ -387,49 +305,30 @@ class Net_10s_ST(nn.Module):
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x750x128
         out = self.pool2(out)  # 16x1x187x128
-        # print(out.data)
-        # time.sleep(10)
 
         # third conv block
-        # print(out.data)
         out = self.relu3(self.bn3(self.conv3(out)))
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1x187x128
         out = self.pool3(out)  # 16x1x46x128
-        # print(out.data)
-        # time.sleep(10)
 
         # fully convolutional layers
         out = self.fc1(out)  # 16x100x1x1 o 16x100xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)
         out = torch.unsqueeze(out, 1)  # 16x1xtx100
-        # print(out.data)
-        # time.sleep(10)
 
         out = self.fc2(out)  # 16x7xtx1
         out = torch.squeeze(out, 3)
         out = torch.transpose(out, 1, 2)  # 16xtxn
-        # print(out.data)
-        # time.sleep(10)
         # out = torch.unsqueeze(out, 1) #16x1xtxn
         # out = torch.squeeze(out, 1) #16xn
         # change softmax input
         out = out.transpose(0, 2)  # nxtxb
-        # print(out.data)
-        # time.sleep(10)
         n, t, b = out.size()
         out = out.contiguous()
         out = out.view(-1, t * b)  # nx16*t
-        # print(out.data)
-        # time.sleep(10)
         out = out.t()
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         out = self.softmax(out)
-        # print(out.data)
-        # time.sleep(10)
-        # print(out.data)
         return out

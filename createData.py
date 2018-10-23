@@ -17,8 +17,9 @@ import pickle
 dataCreationfolder = os.path.join('~','Tesis','Codes','dataCreation')
 sys.path.append(dataCreationfolder)
 
-from dataCreation import ExpDataCreation
+from dataCreation import ExpDataCreation as expD
 from dataCreation import getDatabase as gD
+from dataCreation import data_augmentation as dataAug
 
 #datasetNum, windowSize, rawImages = 0, 30, False
 #delOuts='No'
@@ -65,6 +66,27 @@ def makeData(datasetNum=0,windowSize=30,rawImages=False,delOuts='No',
         gD.getHist(dataBaseDict)      
     return dataBaseDict
 
+def makeData_PP(datasetNum=0,windowSize=30,rawImages=False,delOuts='No',
+             timesOut=0,savePath=saveDataPath,jobPathPrint=os.path.join(homeDic,'Tesis','results'),
+             hists='No'):
+    """ Function to create database dictionary based on parameters of type of
+    database in physionet, window size, amplitude or rawImages, eliminate or
+    not the outliers, times of STD to be truncated
+    
+    Its also posible to input the path in which progess is shown when running
+    a job in the cluster; the path which database dictionaries will be saved
+    and tha possibility to create histograms for the database
+    
+    """
+    startTime = time.time()
+    gD.createDataset_PP(datasetNum,windowSize,rawImages,delOuts,
+                                    timesOut,jobPathPrint,savePath)
+    endTime = time.time()
+    
+    runningTime = endTime - startTime
+    print('Total minutes used to create the data base: ', runningTime/60)
+    
+
 def loadData(dataPathFile):
     """ Function to load the database dictionary from input path of pickle """
     if dataPathFile[-3:] == 'pkl':
@@ -72,6 +94,12 @@ def loadData(dataPathFile):
         return dataBaseDict
     else:
         raise Exception('File that is trying to be loaded is not a pickle file\n')
+
+def saveData(dataBase, savePathFile):
+    """ Function to save the database dictionary from input path of pickle """
+    if savePathFile[-3:] == 'pkl':
+        pickle.dump(dataBase, open(savePathFile, 'wb'), pickle.HIGHEST_PROTOCOL)
+        print('Saved dataBase in: ', savePathFile)
     
 def balanceData(dataPath,dataPathFile):
     """ Function to make a balanced database"""
@@ -159,9 +187,41 @@ def balanceData(dataPath,dataPathFile):
     return balancedDict
         
             
-        
-        #for i in range(len(classesList)):
-        #    print(i)
-    
+def augment_data(dataPath,dataPathFile,typeAug='separated'):
+    """ Function to execute data augmentation 
+    typeAug is refered to the type of data augmentation:
+        - 'separated' = by each class and not take into account order
+        - 'all' = augment each ordered window
+    """
 
+    winTime = 10
+    sampSize = 5
 
+    windowSize = int(dataPathFile[-8:-6])
+    dataType = dataPathFile[-15:-13]
+    imgType = dataPathFile[-12:-9]
+    timesOut = dataPathFile[-5]
+    augData = {}
+    if windowSize == 30:
+        database = loadData(os.path.join(dataPath,dataPathFile))
+        for fold in database.keys():
+            databaseDict = database[fold]
+            if typeAug == 'all':
+                datafolder = 'augmentedData_all'
+                # dataDict,winTime,sampSize, dataType='SC'
+                augmentedDatabase = expD.winSamp(databaseDict,winTime,sampSize,
+                    dataType)
+            else:
+                datafolder = 'augmentedData_separated'
+                # dataDict,winTime,sampling, dataType='SC'
+                augmentedDatabase = dataAug.augment(databaseDict,winTime,
+                    sampSize,dataType)
+
+            augData[fold] = augmentedDatabase
+
+        dataBaseName = 'dataBaseDict_{}_{}_{}_{}.pkl'
+        dataBasefile = dataBaseName.format(dataType,imgType,windowSize,timesOut)
+        if not os.path.isdir(os.path.join(dataPath,datafolder)):
+            os.makedirs(os.path.join(dataPath,datafolder))
+        savePath = os.path.join(dataPath,datafolder,dataBasefile)
+        saveData(augData, savePath)
